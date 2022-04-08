@@ -1,0 +1,6 @@
+int8 a
+---
+float64 lon
+float64 lat
+float32 spd
+float32 alt
