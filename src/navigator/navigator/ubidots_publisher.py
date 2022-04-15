@@ -104,7 +104,11 @@ class UbidotsPublisher():
                 return True
 
 def publish(args=None):
-        rclpy.init(args=args)        
+        try:
+                rclpy.init(args=args)  
+        except Exception as e:
+                print("Unable to initialize rclpy: %r" %e) 
+                     
         y4000_client = Y4000ClientAsync()
         y4000_client.send_request()
         while rclpy.ok():
