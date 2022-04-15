@@ -72,11 +72,13 @@ class UbidotsPublisher():
                 self.post_request()
                 
         def build_payload(self):
-                if self.variables['lat'] == 0:
+                if self.dk_response.lat == 0:
                         isfix = False
                 else:
                         isfix = True
                 self.payload = {"position" : {"value":int(isfix), "context": {"lat": self.dk_response.lat, "lng": self.dk_response.lon}},
+                                "pH" : self.wq_response.ph, "ORP" : self.wq_response.orp, "ct" : self.wq_response.ct, "turb":self.wq_response.turb, 
+                                "odo": self.wq_response.odo, "temp" : self.wq_response.temp, "bga" : self.wq_response.bga
                                 }
                 
         def post_request(self):
@@ -102,7 +104,7 @@ class UbidotsPublisher():
                 return True
 
 def publish(args=None):
-        rclpy.init(args=args)
+        rclpy.init(args=args)        
         y4000_client = Y4000ClientAsync()
         y4000_client.send_request()
         while rclpy.ok():
@@ -116,7 +118,7 @@ def publish(args=None):
                                 y4000_client.get_logger().info('Result of Data Request:%r' %
                                 wq_response)
                         break
-        y4000_client.destroy_node()
+
         dronekit_client = DronekitClientAsync()
         dronekit_client.send_request()
         while rclpy.ok():
@@ -130,6 +132,7 @@ def publish(args=None):
                                 dronekit_client.get_logger().info('Result of Data Request: Latitude: %r, Longitude: %r, Altitude: %r' %
                                 (dk_response.lat, dk_response.lon, dk_response.alt))
                         break
+        y4000_client.destroy_node()
         dronekit_client.destroy_node()
         rclpy.shutdown()
         
