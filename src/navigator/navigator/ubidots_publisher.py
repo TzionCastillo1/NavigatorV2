@@ -1,6 +1,5 @@
 import time
 import threading
-from numpy import nonzero
 
 from navigator_interfaces.srv import VehicleLocation
 from navigator_interfaces.srv import WaterParameters
@@ -69,16 +68,35 @@ class UbidotsPublisher():
                 self.wq_response = wq_response
                 self.token = token
                 self.device_label = device_label
+                self.payload = {}
                 self.build_payload()
                 self.post_request()
                 
         def build_payload(self):
-                if self.variables['lat'] == 0:
-                        isfix = False
+                fix = True
+                isreading = True
+                if self.wq_response.temp == 0:
+                        isreading = False
+                        time.sleep(15)
+                        publish()
+                        return
                 else:
-                        isfix = True
-                self.payload = {"position" : {"value":int(isfix), "context": {"lat": self.dk_response.lat, "lng": self.dk_response.lon}},
-                                }
+                        self.payload["odo"] = self.wq_response.odo
+                        self.payload["turb"] = self.wq_response.turb
+                        self.payload["ct"] = self.wq_response.ct
+                        self.payload["ph"] = self.wq_response.ph
+                        self.payload["temp"] = self.wq_response.temp
+                        self.payload["orp"] = self.wq_response.orp
+                        self.payload["bga"] = self.wq_response.bga
+                if self.dk_response.lat == 0:
+                        fix = False
+                else:
+                        self.payload["position"] = {"value":int(fix), "context": {"lat": self.dk_response.lat, "lng": self.dk_response.lon}}
+                
+
+                #self.payload = {"position" : {"value":int(isfix), "context": {"lat": self.dk_response.lat, "lng": self.dk_response.lon}},
+                #                "odo" : self.wq_response.odo, "turb" : self.wq_response.turb, "ct" : self.wq_response.ct, "ph" : self.wq_response.ph,
+                #                "temp": self.wq_response.temp, "orp" : self.wq_response.orp, "bga" : self.wq_response.bga}
                 
         def post_request(self):
                 url = "http://industrial.api.ubidots.com"
@@ -104,20 +122,20 @@ class UbidotsPublisher():
 
 def publish(args=None):
         rclpy.init(args=args)
-        #y4000_client = Y4000ClientAsync()
-        #y4000_client.send_request()
-        #while rclpy.ok():
-        #        rclpy.spin_once(y4000_client)
-        #        if y4000_client.future.done():
-        #                try:
-        #                        wq_response = y4000_client.future.result()
-        #                except Exception as e:
-        #                        y4000_client.get_logger().info('Service call failed %r' %(e,))
-        #                else:
-        #                        y4000_client.get_logger().info('Result of Data Request:%r' %
-        #                        wq_response)
-        #                break
-        #y4000_client.destroy_node()
+        y4000_client = Y4000ClientAsync()
+        y4000_client.send_request()
+        while rclpy.ok():
+                rclpy.spin_once(y4000_client)
+                if y4000_client.future.done():
+                        try:
+                                wq_response = y4000_client.future.result()
+                        except Exception as e:
+                                y4000_client.get_logger().info('Service call failed %r' %(e,))
+                        else:
+                                y4000_client.get_logger().info('Result of Data Request:%r' %
+                                wq_response)
+                        break
+        y4000_client.destroy_node()
         dronekit_client = DronekitClientAsync()
         dronekit_client.send_request()
         while rclpy.ok():
@@ -136,7 +154,8 @@ def publish(args=None):
         
         positionvariables = {'lat':dk_response.lat, 'lon':dk_response.lon, 'alt':dk_response.alt, 'spd':dk_response.spd}
         #dronekit_client.get_logger().info('Variables Received: %s , %s' %(dk_response, wq_response))
-        #ubidots_publisher = UbidotsPublisher(dk_response,wq_response, TOKEN, DEVICE_LABEL)
+        ubidots_publisher = UbidotsPublisher(dk_response,wq_response, TOKEN, DEVICE_LABEL)
+        #ubidots_publisher.post_request()
 
 def main(args=None):
         rt = RepeatedTimer(60, publish, args=None)
