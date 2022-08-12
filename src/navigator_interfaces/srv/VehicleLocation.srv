@@ -5,3 +5,4 @@ float64 lat
 float32 spd
 float32 alt
 float32 dpth
+int64 time_usec

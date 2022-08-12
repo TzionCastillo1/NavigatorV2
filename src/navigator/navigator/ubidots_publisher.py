@@ -1,6 +1,6 @@
 import time
 import threading
-
+from navigator.csv_handler import CsvPublisher
 from navigator_interfaces.srv import VehicleLocation
 from navigator_interfaces.srv import WaterParameters
 import rclpy
@@ -24,7 +24,7 @@ class RepeatedTimer(object):
         def _run(self):
                 self.is_running = False
                 self.start()
-                self.function()
+                self.function(self.args)
         
         def start(self):
                 if not self.is_running:
@@ -88,6 +88,7 @@ class UbidotsPublisher():
                         self.payload["temp"] = self.wq_response.temp
                         self.payload["orp"] = self.wq_response.orp
                         self.payload["bga"] = self.wq_response.bga
+                        self.payload["dpth"] = self.dk_response.dpth
                 if self.dk_response.lat == 0:
                         fix = False
                 else:
@@ -120,8 +121,10 @@ class UbidotsPublisher():
                 print("[INFO] request made successfully")
                 return True
 
-def publish(args=None):
-        rclpy.init(args=args)
+
+
+def publish(csv_publisher):
+        rclpy.init(args=None)
         y4000_client = Y4000ClientAsync()
         y4000_client.send_request()
         while rclpy.ok():
@@ -152,14 +155,16 @@ def publish(args=None):
         dronekit_client.destroy_node()
         rclpy.shutdown()
         
-        positionvariables = {'lat':dk_response.lat, 'lon':dk_response.lon, 'alt':dk_response.alt, 'spd':dk_response.spd}
+        #positionvariables = {'lat':dk_response.lat, 'lon':dk_response.lon, 'alt':dk_response.alt, 'spd':dk_response.spd}
         #dronekit_client.get_logger().info('Variables Received: %s , %s' %(dk_response, wq_response))
         ubidots_publisher = UbidotsPublisher(dk_response,wq_response, TOKEN, DEVICE_LABEL)
+        csv_publisher.publish_to_file(dk_response, wq_response)
         #ubidots_publisher.post_request()
 
 def main(args=None):
-        rt = RepeatedTimer(60, publish, args=None)
-
+        csv_publisher = CsvPublisher(DEVICE_LABEL)
+        rt = RepeatedTimer(60, publish, args=csv_publisher)
+        
 
 if __name__ == '__main__':
         main()

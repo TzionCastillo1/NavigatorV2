@@ -7,4 +7,4 @@ def float_to_decimal(float):
     mantissa = ((float[1]&0x7f)<<16) | (float[2]<<8)| float[3]
 
     decimal = pow(-1,sign)*(1.0 + mantissa/pow(2,23))*pow(2,exponent)
-    return decimal
+    return float(decimal)
