@@ -24,7 +24,7 @@ class RepeatedTimer(object):
         def _run(self):
                 self.is_running = False
                 self.start()
-                self.function(self.args)
+                self.function(*self.args, **self.kwargs)
         
         def start(self):
                 if not self.is_running:
@@ -75,20 +75,15 @@ class UbidotsPublisher():
         def build_payload(self):
                 fix = True
                 isreading = True
-                if self.wq_response.temp == 0:
-                        isreading = False
-                        time.sleep(15)
-                        publish()
-                        return
-                else:
-                        self.payload["odo"] = self.wq_response.odo
-                        self.payload["turb"] = self.wq_response.turb
-                        self.payload["ct"] = self.wq_response.ct
-                        self.payload["ph"] = self.wq_response.ph
-                        self.payload["temp"] = self.wq_response.temp
-                        self.payload["orp"] = self.wq_response.orp
-                        self.payload["bga"] = self.wq_response.bga
-                        self.payload["dpth"] = self.dk_response.dpth
+                
+                self.payload["odo"] = self.wq_response.odo
+                self.payload["turb"] = self.wq_response.turb
+                self.payload["ct"] = self.wq_response.ct
+                self.payload["ph"] = self.wq_response.ph
+                self.payload["temp"] = self.wq_response.temp
+                self.payload["orp"] = self.wq_response.orp
+                self.payload["bga"] = self.wq_response.bga
+                self.payload["dpth"] = self.dk_response.dpth
                 if self.dk_response.lat == 0:
                         fix = False
                 else:
@@ -123,7 +118,7 @@ class UbidotsPublisher():
 
 
 
-def publish(csv_publisher):
+def publish(csv_publisher, false_reads):
         rclpy.init(args=None)
         y4000_client = Y4000ClientAsync()
         y4000_client.send_request()
@@ -154,16 +149,21 @@ def publish(csv_publisher):
                         break
         dronekit_client.destroy_node()
         rclpy.shutdown()
-        
+        if wq_response.temp == 0 and false_reads < 2:
+                time.sleep(15)
+                false_reads+=1
+                publish(csv_publisher, false_reads)
+                return
+        else:
         #positionvariables = {'lat':dk_response.lat, 'lon':dk_response.lon, 'alt':dk_response.alt, 'spd':dk_response.spd}
         #dronekit_client.get_logger().info('Variables Received: %s , %s' %(dk_response, wq_response))
-        ubidots_publisher = UbidotsPublisher(dk_response,wq_response, TOKEN, DEVICE_LABEL)
-        csv_publisher.publish_to_file(dk_response, wq_response)
+                ubidots_publisher = UbidotsPublisher(dk_response,wq_response, TOKEN, DEVICE_LABEL)
+                csv_publisher.publish_to_file(dk_response, wq_response)
         #ubidots_publisher.post_request()
 
 def main(args=None):
         csv_publisher = CsvPublisher(DEVICE_LABEL)
-        rt = RepeatedTimer(60, publish, args=csv_publisher)
+        rt = RepeatedTimer(60, publish, csv_publisher, false_reads=0)
         
 
 if __name__ == '__main__':

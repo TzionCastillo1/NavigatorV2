@@ -1,8 +1,13 @@
-FROM ros
+FROM ros:foxy
+
+RUN apt-get -y update \
+    && apt-get -y install --no-install-recommends python3-pip
+
 
 
 # ** [Optional] Uncomment this section to install additional packages. **
-
+# . /opt/ros/$ROS_DISTRO/setup.sh \
+#    && add-apt-repository universe \
 # ENV DEBIAN_FRONTEND=noninteractive
 # RUN apt-get -y update \
 #    && apt-get -y install --no-install-recommends python3-pip \

@@ -45,11 +45,9 @@ class DronekitService(Node):
 def main(args=None):
         rclpy.init(args=args)
         #Connect to Autopilot, Output Error Message if not able to
-        try:
-                vehicle = connect('/dev/ttyACM1', wait_ready=True, baud=56700)
-                dronekit_service = DronekitService(vehicle)
-        except Exception as e:
-                dronekit_service.get_logger().info('Vehicle Connection Failed %r' %(e,))
+        vehicle = connect('/dev/ttyUSB0', wait_ready=True, baud=56700)
+        dronekit_service = DronekitService(vehicle)      
+        
         #Spin the ROS2 Service
         try:
                 rclpy.spin(dronekit_service)

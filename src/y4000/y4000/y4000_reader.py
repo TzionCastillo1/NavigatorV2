@@ -33,6 +33,7 @@ class Sonde(Instrument):
                 reg_count = 0
                 sensor_count+=1
         for sensor in sensor_hex:
+            #decimal = float_to_decimal(sensor)
             sensor_dec.append(float_to_decimal(sensor))
         return sensor_dec 
 

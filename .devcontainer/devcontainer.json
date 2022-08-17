@@ -1,11 +1,6 @@
 // See https://aka.ms/vscode-remote/devcontainer.json for format details.
-{
+{	"context" : "../",
 	"dockerFile": "Dockerfile",
-	"build": {
-		"args": {
-			"WORKSPACE": "${containerWorkspaceFolder}"
-		}
-	},
 	//"remoteUser": "navigator",
 	"runArgs": [
 		"--network=host",
@@ -13,24 +8,15 @@
 		"--security-opt=seccomp:unconfined",
 		"--security-opt=apparmor:unconfined",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-		"--device=/dev/ttyUSB0"
+		"--device=/dev/ttyUSB0",
+		"--device=/dev/ttyUSB1"
 	],
-	"containerEnv": { "DISPLAY": "${localEnv:DISPLAY}" },
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"terminal.integrated.profiles.linux": {
-			"bash": {
-				"path": "bash"
-			},
-		},
-		"terminal.integrated.defaultProfile.linux": "bash"
-	},
 	"extensions": [
 		"dotjoshjohnson.xml",
 		"zachflower.uncrustify",
 		"ms-azuretools.vscode-docker",
-		"ms-iot.vscode-ros",
 		"ms-python.python",
+		"ms-iot.vscode-ros",
 		"ms-vscode.cpptools",
 		"redhat.vscode-yaml",
 		"smilerobotics.urdf",
