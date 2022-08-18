@@ -3,7 +3,8 @@ FROM ros:foxy
 RUN apt-get -y update \
     && apt-get -y install --no-install-recommends python3-pip
 
-
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 # ** [Optional] Uncomment this section to install additional packages. **
 # . /opt/ros/$ROS_DISTRO/setup.sh \
