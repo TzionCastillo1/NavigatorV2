@@ -3,3 +3,7 @@ install/*
 log/*
 site/*
 logs/*
+*.csv
+bin/
+*/__pycache__/
+*.py[cod]
