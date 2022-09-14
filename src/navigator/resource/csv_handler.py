@@ -27,3 +27,7 @@ class CsvPublisher():
                                 csv_writer.writerow(new_row)
                 except Exception as e:
                         print("Could not write row to file: %r" %(e,))
+
+        def publish_to_file(self, payload):
+                new_row = [ INSERT TIME HERE, payload["position"].context.lat, payload["position"].context.lon, payload.dpth,
+                        payload.odo, payload.turb, payload.ct, payload.ph, payload.temp, payload.orp, payload.bga]
