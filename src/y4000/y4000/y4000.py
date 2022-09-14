@@ -8,7 +8,7 @@ class Y4000service(Node):
     def __init__(self):
         super().__init__('y4000_service')
         self.srv = self.create_service(WaterParameters, 'water_parameters', self.water_parameters_callback)
-        self.sonde = Sonde('/dev/ttyUSB1',0x01)
+        self.sonde = Sonde('/dev/ttyUSB0',0x01)
         self.get_logger().info('Initializing Y4000 Connection ...')
     def water_parameters_callback(self,request, response):
         try:
