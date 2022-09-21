@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'state_retriever = navigator.dronekit_server:main',
-            'state_publisher = navigator.ubidots_publisher:main',
+            'autopilot_interface = navigator.autopilot_node:main',
+            'data_handler = navigator.data_handler:main',
         ],
     },
 )

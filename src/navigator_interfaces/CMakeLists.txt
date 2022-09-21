@@ -33,11 +33,12 @@ if(BUILD_TESTING)
 endif()
 
 find_package(rosidl_default_generators REQUIRED)
-
+find_package(std_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/y4000.msg"
+  "msg/Y4000msg.msg"
   "srv/VehicleLocation.srv"
   "srv/WaterParameters.srv"
+  DEPENDENCIES builtin_interfaces std_msgs
 )
 
 ament_package()
