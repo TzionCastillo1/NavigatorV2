@@ -8,8 +8,10 @@
 		"--security-opt=seccomp:unconfined",
 		"--security-opt=apparmor:unconfined",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-		//"--device=/dev/ttyUSB0",
-		//"--device=/dev/ttyUSB1"
+		"--device=/dev/ttyUSB0",
+		"--device=/dev/ttyUSB1",
+		"--restart=unless-stopped",
+		"--cap-add=SYS_TIME"
 	],
 	"extensions": [
 		"dotjoshjohnson.xml",
