@@ -2,7 +2,8 @@ build/*
 install/*
 log/*
 site/*
-logs/*
+logs/
 *.csv
 bin/
+__pycache__/
 *.py[cod]
