@@ -5,14 +5,15 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, NavSatFix, NavSatStatus
-from cv_bridge import CvBridge
 import cv2
+from cv_bridge import CvBridge
+
 from haversine import haversine, Unit
 
-class ImageSave(Node):
+class ImageSaverNode(Node):
         def __init__(self):
-                super().__init__(self)
-                self.img_subscriber_ = self.create_subscription(Image, 'image', image_callback, 10)
+                super().__init__('img_svr_node')
+                self.img_subscriber_ = self.create_subscription(Image, 'image', self.image_callback, 10)
                 self.gps_subscriber = self.create_subscription(
                         NavSatFix,
                         'gps/fix',
@@ -41,4 +42,17 @@ class ImageSave(Node):
                 str = ''.join(tup)
                 return str
                 
+def main(args=None):
+        rclpy.init(args=args)
+        image_saver_node = ImageSaverNode()
 
+        #Spin Subscription
+        try:
+                rclpy.spin(image_saver_node)
+        except Exception as e:
+                image_saver_node.get_logger().info('Subscriber Creation Failed %r' %(e,))
+
+        
+
+if __name__ == '__main__':
+        main()
