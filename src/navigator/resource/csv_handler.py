@@ -1,6 +1,7 @@
 import csv
 from datetime import date
 from pathlib import Path
+import time
 
 class CsvPublisher():
         def __init__(self, device_label):
@@ -29,5 +30,5 @@ class CsvPublisher():
                         print("Could not write row to file: %r" %(e,))
 
         def publish_to_file(self, payload):
-                new_row = [ INSERT TIME HERE, payload["position"].context.lat, payload["position"].context.lon, payload.dpth,
+                new_row = [time.time(), payload["position"].context.lat, payload["position"].context.lon, payload.dpth,
                         payload.odo, payload.turb, payload.ct, payload.ph, payload.temp, payload.orp, payload.bga]

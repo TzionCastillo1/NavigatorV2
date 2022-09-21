@@ -1,6 +1,4 @@
 #ROS2 related imports
-from navigator_interfaces.srv import VehicleLocation
-from navigator.navigator_class import Navigator
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import NavSatStatus
 from std_msgs.msg import Header
@@ -21,14 +19,17 @@ class AutopilotNode(Node):
                 timer_period = 0.5 # seconds
                 self.vehicle = vehicle
                 self.timer = self.create_timer(timer_period, self.timer_callback)
+                vehicle.add_message_listener('SYSTEM_TIME', self.listener)                
+                self.get_logger().info('Initializing Dronekit Service ...')
+
         def timer_callback(self):
-                msg = NavSatFix
+                msg = NavSatFix()
                 msg.header = Header()
                 msg.header.stamp = self.get_clock().now().to_msg()
                 msg.header.frame_id = "gps"
 
-                msg.status.status = NavSatStatus.STATUS_FIX
-                msg.status.service = NavSatStatus.SERVICE_GPS
+                #msg.status.status = NavSatStatus.STATUS_FIX
+                #msg.status.service = NavSatStatus.SERVICE_GPS
                 #Latitude and Longitude in Decimal Degrees
                 msg.latitude = self.vehicle.location.global_frame.lat
                 msg.longitude = self.vehicle.location.global_frame.lon
@@ -42,14 +43,26 @@ class AutopilotNode(Node):
 
                 self.location_publisher.publish(msg)
                 self.best_pos_a = None
+        
+        #not sure what 3rd input in this functino is
+        def listener(self, name, unsure, msg):
+                self.get_logger().info('time(ms from epoch): %i' %(int(msg.time_unix_usec)))
+                #print(msg.time_usec)
+                self.time_usec = int(msg.time_unix_usec)
+                timestamp = datetime.fromtimestamp(self.time_usec / 1000000)
+                self.get_logger().info('Time from GPS:%s' %(str(timestamp),))
+                timestamp = timestamp.strftime("%Y%m%d %H:%M:%S")
+                os.system('timedatectl set-ntp false')
+                os.system('sudo date -u --set="%s"' %timestamp)
+                self.vehicle.remove_message_listener('SYSTEM_TIME', self.listener)
 
 def main(args=None):
         rclpy.init(args=args)
         #Connect to Autopilot, Output Error Message if not able to
-        vehicle = connect('/dev/ttyUSB0', wait_ready=True, baud=56700, vehicle_class=Navigator)
-        vehicle.add_attribute_listener('utm_global_position', utm_global_position_callback)
+        vehicle = connect('/dev/ttyUSB1', wait_ready=True, baud=56700)
+        #vehicle.add_attribute_listener('utm_global_position', utm_global_position_callback)
 
-        autopilot_node = AutopilotNode  
+        autopilot_node = AutopilotNode(vehicle)  
         
         #Spin the ROS2 Service
         try:

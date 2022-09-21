@@ -3,27 +3,40 @@ import rclpy
 from rclpy.node import Node
 from rclpy.logging import LoggingSeverity
 from y4000.y4000_reader import Sonde
-from navigator_interfaces.msg import Y4000_msg
-
+from navigator_interfaces.msg import Y4000msg
+from std_msgs.msg import Header
 class Y4000Node(Node):
     def __init__(self):
         super().__init__('y4000_node')
-        self.publisher = self.create_publisher(Y4000_msg, 'y4000', 10)
-        timer_period = 120
+        self.publisher = self.create_publisher(Y4000msg, 'y4000', 10)
+        timer_period = 70
         self.timer = self.create_timer(timer_period, self.timer_callback)
-    
+        self.sonde = Sonde('/dev/ttyUSB0',0x01)
+        self.attempts = 0
+
     def timer_callback(self):
-        self.readings = self.sonde.read_all_sensors()
         try:
-            msg = Y4000_msg()
+            self.readings = self.sonde.read_all_sensors()
+            msg = Y4000msg()
+            msg.header = Header()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.header.frame_id = "Y4000"
             msg.odo = self.readings[0]
             msg.turb = self.readings[1]
             msg.ct = self.readings[2]
             msg.ph = self.readings[3]
             msg.temp = self.readings[4]
             msg.orp = self.readings[5]
+            #self.attempts = 0
+            self.publisher.publish(msg)
+            self.attempts = 0
         except Exception as e:
             self.get_logger().error('Topic publish failed while reading from Sonde %r' %(e,))
+            if(self.attempts > 3) : 
+                self.attempts += 1
+                self.timer_callback()
+                
+
 
 
 def main(args=None):
