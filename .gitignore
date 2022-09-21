@@ -5,5 +5,4 @@ site/*
 logs/*
 *.csv
 bin/
-*/__pycache__/
 *.py[cod]
