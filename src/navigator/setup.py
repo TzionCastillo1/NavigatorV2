@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'autopilot_interface = navigator.autopilot_node:main',
-            'data_handler = navigator.data_handler:main',
+            'data_handler = navigator.data_handler_node:main',
         ],
     },
 )

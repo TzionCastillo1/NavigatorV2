@@ -2,6 +2,7 @@
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import NavSatStatus
 from std_msgs.msg import Header
+from navigator_interfaces.msg import ArmStatus
 import rclpy
 from rclpy.node import Node
 #Other imports
@@ -14,16 +15,20 @@ from datetime import datetime
 class AutopilotNode(Node):
         def __init__(self, vehicle):
                 super().__init__('Autopilot')
-                self.location_publisher = self.create_publisher(
-                        NavSatFix, 'gps/fix', 10)
-                timer_period = 0.5 # seconds
+                #self.location_publisher = self.create_publisher(
+                #        NavSatFix, 'gps/fix', 10)
+                #timer_period = 0.5 # seconds
+                self.arm_publisher = self.create_publisher(
+                        ArmStatus, 'arm_status', 10)
                 self.vehicle = vehicle
-                self.timer = self.create_timer(timer_period, self.timer_callback)
-                vehicle.add_message_listener('SYSTEM_TIME', self.listener)                
+                #self.timer = self.create_timer(timer_period, self.timer_callback)
+                vehicle.add_message_listener('SYSTEM_TIME', self.listener) 
+                vehicle.add_attribute_listener('armed', self.arm_callback)               
                 self.get_logger().info('Initializing Dronekit Service ...')
 
         def timer_callback(self):
                 msg = NavSatFix()
+                
                 msg.header = Header()
                 msg.header.stamp = self.get_clock().now().to_msg()
                 msg.header.frame_id = "gps"
@@ -52,9 +57,26 @@ class AutopilotNode(Node):
                 timestamp = datetime.fromtimestamp(self.time_usec / 1000000)
                 self.get_logger().info('Time from GPS:%s' %(str(timestamp),))
                 timestamp = timestamp.strftime("%Y%m%d %H:%M:%S")
-                os.system('timedatectl set-ntp false')
-                os.system('sudo date -u --set="%s"' %timestamp)
+                try:
+                        os.system('timedatectl set-ntp false')
+                        os.system('sudo date -u --set="%s"' %timestamp)
+                except:
+                        self.get_logger().info('Cannot set time')
                 self.vehicle.remove_message_listener('SYSTEM_TIME', self.listener)
+
+        def arm_callback(self, attr_name, smthng, msg):
+                arm_msg = ArmStatus()
+                if(msg == 'armed'):
+                        arm_msg.armed = True 
+                        self.location_publisher = self.create_publisher(
+                        NavSatFix, 'gps/fix', 10)
+                        timer_period = 0.5 # seconds
+                        self.timer = self.create_timer(timer_period, self.timer_callback)
+                else:
+                        arm_msg.armed = False 
+                        if(self.location_publisher):
+                                self.destroy_publisher(self.location_publisher)
+                self.arm_publisher.publish(arm_msg)
 
 def main(args=None):
         rclpy.init(args=args)

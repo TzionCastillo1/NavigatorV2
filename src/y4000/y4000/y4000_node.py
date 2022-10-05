@@ -3,16 +3,22 @@ import rclpy
 from rclpy.node import Node
 from rclpy.logging import LoggingSeverity
 from y4000.y4000_reader import Sonde
-from navigator_interfaces.msg import Y4000msg
+from navigator_interfaces.msg import Y4000msg, ArmStatus
 from std_msgs.msg import Header
 class Y4000Node(Node):
     def __init__(self):
         super().__init__('y4000_node')
-        self.publisher = self.create_publisher(Y4000msg, 'y4000', 10)
-        timer_period = 70
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        #self.publisher = self.create_publisher(Y4000msg, 'y4000', 10)
+        #timer_period = 70
+        #self.timer = self.create_timer(timer_period, self.timer_callback)
         self.sonde = Sonde('/dev/ttyUSB0',0x01)
         self.attempts = 0
+        self.armedstateSubscriber = self.create_subscription(
+            ArmStatus,
+            'arm_status',
+            self.arm_callback,
+            10
+        )
 
     def timer_callback(self):
         try:
@@ -35,6 +41,17 @@ class Y4000Node(Node):
             if(self.attempts > 3) : 
                 self.attempts += 1
                 self.timer_callback()
+
+    def arm_callback(self, message):
+        if(message.armed == True):
+            self.publisher = self.create_publisher(Y4000msg, 'y4000', 10)
+            timer_period = 70
+            self.timer = self.create_timer(timer_period, self.timer_callback)
+        else:
+            if(self.publisher):
+                self.destroy_publisher(self.publisher)
+
+
                 
 
 

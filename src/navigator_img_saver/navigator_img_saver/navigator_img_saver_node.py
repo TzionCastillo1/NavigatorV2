@@ -8,12 +8,12 @@ from sensor_msgs.msg import Image, NavSatFix, NavSatStatus
 import cv2
 from cv_bridge import CvBridge
 
-from haversine import haversine, Unit
+#from haversine import haversine, Unit
 
 class ImageSaverNode(Node):
         def __init__(self):
                 super().__init__('img_svr_node')
-                self.img_subscriber_ = self.create_subscription(Image, 'image', self.image_callback, 10)
+                self.img_subscriber_ = self.create_subscription(Image, '/color/image', self.image_callback, 10)
                 self.gps_subscriber = self.create_subscription(
                         NavSatFix,
                         'gps/fix',
@@ -34,9 +34,9 @@ class ImageSaverNode(Node):
                         self.coord = (tuple) (msg.latitude, msg.longitude)
                 else:
                         self.last_coord = (tuple) (msg.latitude, msg.longitude)
-                        if(haversine(self.coord, self.last_coord, unit = Unit.METERS) > 5 ):
-                                self.img_flag = True
-                                self.coord = self.last_coord
+                        #if(haversine(self.coord, self.last_coord, unit = Unit.METERS) > 5 ):
+                        #        self.img_flag = True
+                        #        self.coord = self.last_coord
 
         def tuple_to_string(self, tup):
                 str = ''.join(tup)
@@ -49,6 +49,7 @@ def main(args=None):
         #Spin Subscription
         try:
                 rclpy.spin(image_saver_node)
+                image_saver_node.get_logger().info('Subscription sucssessful')
         except Exception as e:
                 image_saver_node.get_logger().info('Subscriber Creation Failed %r' %(e,))
 

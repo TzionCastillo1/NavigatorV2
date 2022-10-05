@@ -32,14 +32,17 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Y4000msg.msg"
+  "msg/ArmStatus.msg"
   "srv/VehicleLocation.srv"
   "srv/WaterParameters.srv"
   DEPENDENCIES builtin_interfaces std_msgs
 )
 
+ament_export_dependencies(rosidl_default_runtime)
 ament_package()
 

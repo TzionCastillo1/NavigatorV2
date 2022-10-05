@@ -6,19 +6,19 @@ def generate_launch_description():
                 Node(
                         package='navigator',
                         #namespace='navigator',
-                        executable='state_retriever',
+                        executable='autopilot_interface',
                         #name='navigator'
                 ),
                 Node(
                         package='y4000',
                         #namespace='y4000',
-                        executable='y4000',
+                        executable='y4000_node',
                         #name='y4000'
                 ),
                 Node(
                         package='navigator',
                         #namespace='navigator',
-                        executable='state_publisher',
+                        executable='data_handler',
                         #name='y4000'
                 )
         ])
