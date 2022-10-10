@@ -66,7 +66,8 @@ class AutopilotNode(Node):
 
         def arm_callback(self, attr_name, smthng, msg):
                 arm_msg = ArmStatus()
-                if(msg == 'armed'):
+                self.get_logger().info('arm message: %s %s' %(msg,type(msg)))
+                if(msg == True):
                         arm_msg.armed = True 
                         self.location_publisher = self.create_publisher(
                         NavSatFix, 'gps/fix', 10)
@@ -74,7 +75,7 @@ class AutopilotNode(Node):
                         self.timer = self.create_timer(timer_period, self.timer_callback)
                 else:
                         arm_msg.armed = False 
-                        if(self.location_publisher):
+                        if(hasattr(self, "location_publisher")):
                                 self.destroy_publisher(self.location_publisher)
                 self.arm_publisher.publish(arm_msg)
 

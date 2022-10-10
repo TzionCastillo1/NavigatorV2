@@ -47,7 +47,7 @@ class DataHandlerNode(Node):
                 #self.alt = message.altitude
                 if message.latitude == 0: fix = False
                 self.payload["position"] = {"value":int(fix), "context": {"lat": message.latitude, "lng": message.longitude}}
-                self.get_logger().info('Latitude : %s, \n Longitude : %s, \n Altitude : %s' %(self.lat,self.lon,self.alt))
+                #self.get_logger().info('Latitude : %s, \n Longitude : %s, \n Altitude : %s' %(message.latitude,message.longitude,message.altitude))
 
         def depth_callback(self, message):
                 self.payload["dpth"] = self.dk_response.dpth
