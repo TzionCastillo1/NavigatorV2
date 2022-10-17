@@ -2,7 +2,7 @@
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import NavSatStatus
 from std_msgs.msg import Header
-from navigator_interfaces.msg import ArmStatus
+from navigator_interfaces.msg import ArmStatus, Depth
 import rclpy
 from rclpy.node import Node
 #Other imports
@@ -46,7 +46,10 @@ class AutopilotNode(Node):
                 msg.position_covariance[8] = 0
                 msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_DIAGONAL_KNOWN
 
+                dpth_msg = Depth()
+                dpth_msg.depth = float(self.vehicle.rangefinder.distance)
                 self.location_publisher.publish(msg)
+                self.depth_publisher.publish(dpth_msg)
                 self.best_pos_a = None
         
         #not sure what 3rd input in this functino is
@@ -71,12 +74,19 @@ class AutopilotNode(Node):
                         arm_msg.armed = True 
                         self.location_publisher = self.create_publisher(
                         NavSatFix, 'gps/fix', 10)
-                        timer_period = 0.5 # seconds
+                        self.depth_publisher = self.create_publisher(
+                                Depth, 'depth', 10)
+                        timer_period = 1
+                         # seconds
                         self.timer = self.create_timer(timer_period, self.timer_callback)
+                        
+                        
                 else:
                         arm_msg.armed = False 
                         if(hasattr(self, "location_publisher")):
                                 self.destroy_publisher(self.location_publisher)
+                                self.destroy_publisher(self.depth_publisher)
+                                self.destroy_timer(self.timer)
                 self.arm_publisher.publish(arm_msg)
 
 def main(args=None):

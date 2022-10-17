@@ -18,17 +18,12 @@ class CsvPublisher():
                         with open(self.file_name, 'w') as new_file:
                                 csv_writer = csv.writer(new_file, delimiter=',')
                                 csv_writer.writerow(self.csv_labels)
-        def publish_to_file(self, dk_response, wq_response):
-                new_row = [dk_response.time_usec, dk_response.lat, dk_response.lon,
-                        dk_response.dpth, wq_response.odo, wq_response.turb, wq_response.ct,
-                        wq_response.ph, wq_response.temp, wq_response.orp, wq_response.bga]
+        def publish(self, payload):
+                new_row = [time.time(), payload["position"]["context"]["lat"], payload["position"]["context"]["lng"], payload["dpth"],
+                        payload["odo"], payload["turb"], payload["ct"], payload["ph"], payload["temp"], payload["orp"], payload["bga"]]
                 try: 
                         with open(self.file_name, 'a') as file:
                                 csv_writer = csv.writer(file, delimiter=',')
                                 csv_writer.writerow(new_row)
                 except Exception as e:
                         print("Could not write row to file: %r" %(e,))
-
-        def publish_to_file(self, payload):
-                new_row = [time.time(), payload["position"].context.lat, payload["position"].context.lon, payload.dpth,
-                        payload.odo, payload.turb, payload.ct, payload.ph, payload.temp, payload.orp, payload.bga]

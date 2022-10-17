@@ -48,8 +48,9 @@ class Y4000Node(Node):
             timer_period = 70
             self.timer = self.create_timer(timer_period, self.timer_callback)
         else:
-            if(self.publisher):
+            if(hasattr(self, "publisher")):
                 self.destroy_publisher(self.publisher)
+                self.destroy_timer(self.timer)
 
 
                 
