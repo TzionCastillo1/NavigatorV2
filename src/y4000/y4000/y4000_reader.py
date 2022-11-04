@@ -15,7 +15,7 @@ class Sonde(Instrument):
         self.serial.baudrate = 9600
     def read_all_sensors(self):
         sensor_dec = []
-        regtoread = [self.DOREG,self.TURBREG, self.CONDREG,self.PHREG,self.TEMPREG,self.ORPREG]
+        regtoread = [self.DOREG,self.TURBREG, self.CONDREG,self.PHREG,self.TEMPREG,self.ORPREG, self.CHLREG]
         for reg in regtoread:
             sensor_dec.append(self.read_float(reg, byteorder=BYTEORDER_LITTLE))
         return sensor_dec

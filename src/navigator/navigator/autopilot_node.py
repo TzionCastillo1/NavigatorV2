@@ -106,7 +106,7 @@ class AutopilotNode(Node):
 def main(args=None):
         rclpy.init(args=args)
         #Connect to Autopilot, Output Error Message if not able to
-        vehicle = connect('/dev/ttyUSB1', wait_ready=True, baud=56700)
+        vehicle = connect('/dev/ttyUSB0', wait_ready=True, baud=56700)
         #vehicle.add_attribute_listener('utm_global_position', utm_global_position_callback)
 
         autopilot_node = AutopilotNode(vehicle)  
