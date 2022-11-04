@@ -1,5 +1,5 @@
 dronekit==2.9.2
-numpy==1.17.4
+numpy
 pymavlink==2.4.29
 pyparsing==2.4.6
 pyserial==3.5

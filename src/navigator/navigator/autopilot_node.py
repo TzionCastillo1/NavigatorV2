@@ -15,6 +15,10 @@ from datetime import datetime
 class AutopilotNode(Node):
         def __init__(self, vehicle):
                 super().__init__('Autopilot')
+                self.get_logger().info('Initializing Dronekit Service ...')
+
+                self.declare_parameter('operation_mode')
+                self.operation_mode = self.get_parameter('operation_mode')
                 #self.location_publisher = self.create_publisher(
                 #        NavSatFix, 'gps/fix', 10)
                 #timer_period = 0.5 # seconds
@@ -24,7 +28,17 @@ class AutopilotNode(Node):
                 #self.timer = self.create_timer(timer_period, self.timer_callback)
                 vehicle.add_message_listener('SYSTEM_TIME', self.listener) 
                 vehicle.add_attribute_listener('armed', self.arm_callback)               
-                self.get_logger().info('Initializing Dronekit Service ...')
+                #self.get_logger().info(str(self.operation_mode.value))
+                #Check if we are in test mode
+                if(str(self.operation_mode.value) == 'TEST'):
+                        self.get_logger().info("Running in TEST mode.")
+                        vehicle.armed = True
+                        while not vehicle.armed:
+                                self.get_logger().info(" Waiting")
+                                time.sleep(1)
+                else:
+                        self.get_logger().info("Running in FIELD mode.")
+
 
         def timer_callback(self):
                 msg = NavSatFix()

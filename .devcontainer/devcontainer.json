@@ -3,7 +3,7 @@
 	"dockerFile": "Dockerfile",
 	//"remoteUser": "navigator",
 	"runArgs": [
-		"--network=host",
+		//"--network=host",
 		"--cap-add=SYS_PTRACE",
 		"--security-opt=seccomp:unconfined",
 		"--security-opt=apparmor:unconfined",

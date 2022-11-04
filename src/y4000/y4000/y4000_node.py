@@ -19,7 +19,7 @@ class Y4000Node(Node):
             self.arm_callback,
             10
         )
-
+#TODO update Y4000 Message to add chlorophyll
     def timer_callback(self):
         try:
             self.readings = self.sonde.read_all_sensors()
@@ -33,6 +33,7 @@ class Y4000Node(Node):
             msg.ph = self.readings[3]
             msg.temp = self.readings[4]
             msg.orp = self.readings[5]
+            msg.chl = self.reading[6]
             #self.attempts = 0
             self.publisher.publish(msg)
             self.attempts = 0
@@ -59,7 +60,7 @@ class Y4000Node(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    rclpy.logging._root_logger.set_level(LoggingSeverity.DEBUG)
+    #rclpy.logging._root_logger.set_level(LoggingSeverity.DEBUG)
     y4000 = Y4000Node()
     try:
         rclpy.spin(y4000)

@@ -7,3 +7,4 @@ float64 turb
 float64 odo
 float64 temp
 float64 bga
+float64 chl
