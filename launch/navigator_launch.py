@@ -13,22 +13,16 @@ def generate_launch_description():
         
         autopilot_node = Node(
                 package='navigator',
-                #namespace='navigator',
                 executable='autopilot_interface',
                 parameters = [{'operation_mode': operation_mode}]
-                #name='navigator'
         )
         y4000_node = Node(
                 package='y4000',
-                #namespace='y4000',
                 executable='y4000_node',
-                #name='y4000'
         )
         data_handler_node = Node(
                package='navigator',
-                #namespace='navigator',
                 executable='data_handler',
-                #name='y4000'
         )
 
         ld = LaunchDescription()

@@ -8,8 +8,11 @@ from navigator.csv_handler import CsvPublisher
 from navigator.ubidots_handler import UbidotsPublisher
 import time
 
+#TODO Should hide these
 DEVICE_LABEL = "navigator_beta"
 TOKEN = "BBFF-HgyKQvO4YreuL5P4WVbQRMe8cCaGVD"
+
+
 class DataHandlerNode(Node):
         def __init__(self):
                 self.payload = {}
@@ -45,7 +48,6 @@ class DataHandlerNode(Node):
                 )
 
         def y4000_callback(self, message):
-                self.get_logger().info('3')
                 self.payload["odo"] = message.odo
                 self.payload["turb"] = message.turb
                 self.payload["ct"] = message.ct
@@ -53,6 +55,7 @@ class DataHandlerNode(Node):
                 self.payload["temp"] = message.temp
                 self.payload["orp"] = message.orp
                 self.payload["bga"] = message.bga
+                self.payload["chl"] = message.chl
                 #Check if we have received an image in the past 45 seconds
                 if(time.perf_counter() - self.lastimgtimer < 45):
                         self.payload["lastimg"] = 1
@@ -66,22 +69,11 @@ class DataHandlerNode(Node):
                         self.ubidots_publisher.publish(self.payload)
                 except Exception as e:
                         self.get_logger().info('Publish to Ubidots Failed : %r' %(e,))
-                self.get_logger().info('4')
                 
 
         def gps_callback(self, message):
-                self.get_logger().info('1')
-                #self.lat = message.latitude
-                #self.lon = message.longitude
-                #self.alt = message.altitude
                 fix = True
-                #if message.latitude == 0: fix = False
-                #self.get_logger().info(self.payload)
                 self.payload["position"] = {"value":int(fix), "context": {"lat": message.latitude, "lng": message.longitude}}
-                self.get_logger().info('2')
-                #self.payload["position"]["value"] = int(fix)
-                #self.payload["payload"]["context"] = {"lat": message.latitude, "lng": message.longitude}
-                #self.get_logger().info('Latitude : %s, \n Longitude : %s, \n Altitude : %s' %(message.latitude,message.longitude,message.altitude))
 
         def depth_callback(self, message):
                 self.payload["dpth"] = message.depth

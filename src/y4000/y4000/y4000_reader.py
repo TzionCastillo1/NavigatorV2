@@ -53,7 +53,7 @@ class Sonde(Instrument):
         
         return sensor_dec 
 
-
+    #TODO Use error code in ROS2 logging
     def is_error(self):
         error_code = self.read_register(0x0800)
         error_map = {

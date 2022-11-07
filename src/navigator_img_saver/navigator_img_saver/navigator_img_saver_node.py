@@ -49,10 +49,10 @@ class ImageSaverNode(Node):
                 current_time = time.perf_counter()
                 self.lat = msg.latitude
                 self.lon = msg.longitude
-                #Only check for valid GPS in a field deployment
+                #Only check for valid GPS in a FIELD deployment
                 if(str(self.operation_mode.value) == "FIELD"):
                         if(self.lat != 0):
-                                
+                                #TODO Implement position based saving system vs current time system
                                 #self.last_coord = (tuple) (msg.latitude, msg.longitude)
                                 #if(haversine(self.coord, self.last_coord, unit = Unit.METERS) > 5 ):
                                 #        self.img_flag = True

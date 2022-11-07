@@ -16,45 +16,43 @@ class AutopilotNode(Node):
         def __init__(self, vehicle):
                 super().__init__('Autopilot')
                 self.get_logger().info('Initializing Dronekit Service ...')
-
                 self.declare_parameter('operation_mode')
                 self.operation_mode = self.get_parameter('operation_mode')
-                #self.location_publisher = self.create_publisher(
-                #        NavSatFix, 'gps/fix', 10)
-                #timer_period = 0.5 # seconds
                 self.arm_publisher = self.create_publisher(
                         ArmStatus, 'arm_status', 10)
                 self.vehicle = vehicle
-                #self.timer = self.create_timer(timer_period, self.timer_callback)
                 vehicle.add_message_listener('SYSTEM_TIME', self.listener) 
                 vehicle.add_attribute_listener('armed', self.arm_callback)               
-                #self.get_logger().info(str(self.operation_mode.value))
                 #Check if we are in test mode
                 if(str(self.operation_mode.value) == 'TEST'):
                         self.get_logger().info("Running in TEST mode.")
-                        vehicle.armed = True
+                        if(vehicle.armed == False):
+                                vehicle.armed = True
+                        else:
+                                vehicle.armed = False
+                                time.sleep(5)
+                                vehicle.armed = True
                         while not vehicle.armed:
                                 self.get_logger().info(" Waiting")
                                 time.sleep(1)
                 else:
                         self.get_logger().info("Running in FIELD mode.")
 
-
+        def __del__(self):
+                self.vehicle.armed = False
         def timer_callback(self):
                 msg = NavSatFix()
-                
                 msg.header = Header()
                 msg.header.stamp = self.get_clock().now().to_msg()
                 msg.header.frame_id = "gps"
 
-                #msg.status.status = NavSatStatus.STATUS_FIX
-                #msg.status.service = NavSatStatus.SERVICE_GPS
                 #Latitude and Longitude in Decimal Degrees
                 msg.latitude = self.vehicle.location.global_frame.lat
                 msg.longitude = self.vehicle.location.global_frame.lon
                 #Altitude in Meters
                 msg.altitude = self.vehicle.location.global_frame.alt
 
+                #TODO May be necessary to change these values in the future for onboard Navigation
                 msg.position_covariance[0] = 0
                 msg.position_covariance[4] = 0
                 msg.position_covariance[8] = 0
@@ -66,10 +64,9 @@ class AutopilotNode(Node):
                 self.depth_publisher.publish(dpth_msg)
                 self.best_pos_a = None
         
-        #not sure what 3rd input in this functino is
+        #TODO Figure out what 3rd parameter in this function is
         def listener(self, name, unsure, msg):
                 self.get_logger().info('time(ms from epoch): %i' %(int(msg.time_unix_usec)))
-                #print(msg.time_usec)
                 self.time_usec = int(msg.time_unix_usec)
                 timestamp = datetime.fromtimestamp(self.time_usec / 1000000)
                 self.get_logger().info('Time from GPS:%s' %(str(timestamp),))
@@ -107,7 +104,6 @@ def main(args=None):
         rclpy.init(args=args)
         #Connect to Autopilot, Output Error Message if not able to
         vehicle = connect('/dev/ttyUSB0', wait_ready=True, baud=56700)
-        #vehicle.add_attribute_listener('utm_global_position', utm_global_position_callback)
 
         autopilot_node = AutopilotNode(vehicle)  
         
