@@ -1,8 +1,31 @@
-# VSCode ROS2 Workspace Template
+# Working workspace for Navigator ROS2 development
 
-This template will get you set up using ROS2 with VSCode as your IDE.
+This repository contains everything necessary to run Navigator ROS2 packages on a device, using VSCode .
 
-See [how I develop with vscode and ros2](https://www.allisonthackston.com/articles/vscode_docker_ros2.html) for a more in-depth look on how to use this workspace.
+It has been tested on Dell XPS 13 and Raspberry Pi 4 4GB, both running Ubuntu.
+
+## How to get up and running
+### Prerequisites
+* Install Docker
+* Install ROS2 Humble
+* Instal VSCode
+* Install preffered ROS2 camera driver, we used luxonis_depthai (OPTIONAL)
+
+### Next steps
+* Ensure the RS-485 adapter, and FTDI adapters are plugged into the Y4000, and Ardupilot respectively, as well as the Raspberry Pi's USB ports **The container will not build if this is not the case.**
+* Build and open container using VSCode (Ctrl+Shft+P will pop up command menu)
+* Source the workspace using the command :
+```bash
+. install/setup.bash
+```
+* Launch your desired operation mode using one of the following commands:
+```bash
+ros2 launch launch/navigator_launch.py OPERATION_MODE:= <OPERATION_MODE>
+ros2 launch launch/navigator_with_camera_launch.py OPERATION_MODE:= <OPERATION_MODE>
+```
+#### Operation Modes:
+* **TEST** -> Navigator nodes are run and the autopilot is armed immediately, allowing all features to be checked without a GPS signal
+* **FIELD** -> Navigator nodes are run, but autopilot is not armed. This requires a manual arming to begin data collection. Useful for preventing battery drain before deployment.
 
 ## Features
 
@@ -89,3 +112,5 @@ VSCode will build the dockerfile inside of `.devcontainer` for you.  If you open
    1. If you are using a `ros2.repos` file, import the contents `Terminal->Run Task..->import from workspace file`
 2. Install dependencies `Terminal->Run Task..->install dependencies`
 3. Develop!
+
+Workspace template and photos courtesy of Allison Hackston https://www.allisonthackston.com/articles/vscode_docker_ros2.html)
