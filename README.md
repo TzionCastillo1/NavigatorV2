@@ -1,4 +1,4 @@
-# Working workspace for Navigator ROS2 development
+# Development workspace for Navigator ROS2 development
 
 This repository contains everything necessary to run Navigator ROS2 packages on a device, using VSCode .
 
